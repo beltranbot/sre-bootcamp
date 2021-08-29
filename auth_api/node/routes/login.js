@@ -1,12 +1,15 @@
-import { loginFunction } from '../services/login';
+import { LoginService } from '../services/login';
+const database = require("../config/database")
+const loginService = new LoginService(database)
 
-export const login = (req, res, next) => {
+export const login = async (req, res, next) => {
   let username = req.body.username;
   let password = req.body.password;
- 
-  let response = {
-    "data": loginFunction(username, password)
-  };
-  res.send(response);
-  next();
+  const token = await loginService.login(username, password);
+  if (!token) {
+    res.status(401).send({"message": "UNAUTHORIZED"})
+  } else {
+    res.status(200).send({data: token})
+    next();
+  }
 }
